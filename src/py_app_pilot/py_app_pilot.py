@@ -16,7 +16,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject, QTimer
 from PyQt5.QtGui import QFont
 from .utils.database import AppDataManager
 from .utils.eunm import app_manager_log_path, app_settings_ini_path
-from .resources import logo
+from .resources import logo_rc,author_rc
 import PyQt5.QtGui as QtGui
 
 class ProcessOutputReader(QThread):
@@ -39,25 +39,14 @@ class ProcessOutputReader(QThread):
 class PythonAppManager(QMainWindow):
     def __init__(self):
         super().__init__()
-        # 设置全局暗色调样式
-        self.setStyleSheet(""
-            "QMainWindow, QWidget {background-color: #2d2d2d; color: #ffffff;}"
-            "QPushButton {background-color: #4a4a4a; color: white; border: 1px solid #666; border-radius: 4px; padding: 5px 10px;}"
-            "QPushButton:hover {background-color: #5a5a5a;}"
-            "QPushButton:pressed {background-color: #3a3a3a;}"
-            "QListWidget {background-color: #3d3d3d; border: 1px solid #555; border-radius: 4px;}"
-            "QListWidget::item {padding: 5px; border-bottom: 1px solid #444;}"
-            "QListWidget::item:selected {background-color: #5a5a5a; color: white;}"
-            "QTabWidget::pane {border: 1px solid #555; background-color: #2d2d2d;}"
-            "QTabBar::tab {background-color: #3d3d3d; color: white; padding: 8px 16px; border: 1px solid #555; border-bottom-color: #555; border-top-left-radius: 4px; border-top-right-radius: 4px;}"
-            "QTabBar::tab:selected {background-color: #2d2d2d; border-bottom-color: #2d2d2d;}"
-            "QTabBar::tab:hover:!selected {background-color: #4a4a4a;}"
-            "QLineEdit, QTextEdit {background-color: #3d3d3d; color: white; border: 1px solid #555; border-radius: 4px; padding: 5px;}"
-            "QLabel {color: #ffffff;}"
-            "QMessageBox {background-color: #2d2d2d;}"
-            "QMessageBox QPushButton {min-width: 80px;}"
-        )
+        self.setWindowTitle("PythonAppManager")
+        self.setGeometry(100, 100, 1200, 800)
         self.app_data_manager = AppDataManager()
+        self.processes = {}
+        self.app_settings = {}
+        self.global_settings = {}
+        self.load_settings()
+        self.init_ui()
         self.config = configparser.ConfigParser()
         self.logger = logger
         self.app_processes = {}

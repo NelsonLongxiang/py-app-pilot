@@ -1,6 +1,8 @@
 # PyAppPilot
+### AI模型：豆包1.6 推理模型
+### IDE：TRAE CN
 
-PyPilot是一款功能强大的Python应用管理工具，专为开发者设计，提供直观的界面来管理、监控和控制多个Python应用程序。
+PyPilot是一款功能强大的Python应用管理工具，由AI驱动开发，专为开发者设计，提供直观的界面来管理、监控和控制多个Python应用程序。
 
 ## 功能特性
 
@@ -60,7 +62,8 @@ py-app-pilot/
 ├── __init__.py          # 包入库
 ├── py_app_pilot.py      # 主程序入口
 ├── resources/           # 资源文件
-│   ├── logo.py          # 图标
+│   ├── logo_rc.py          # 图标
+│   ├── author_rc.py
 └── utils/               # 工具函数
     ├── database.py      # 数据库操作
     ├── eunm.py          # 枚举定义
