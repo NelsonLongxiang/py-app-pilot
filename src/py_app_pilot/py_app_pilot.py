@@ -342,6 +342,8 @@ class PythonAppManager(QMainWindow):
                 return item
         # 创建新分组
         group_item = QTreeWidgetItem([group_name])
+        group_item.setFlags(group_item.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsTristate)
+        group_item.setCheckState(0, Qt.Unchecked)
         self.app_tree.addTopLevelItem(group_item)
         return group_item
 
@@ -649,6 +651,7 @@ class PythonAppManager(QMainWindow):
             # 如果分组不存在则创建
             if group_name not in groups:
                 group_item = QTreeWidgetItem([group_name])
+                group_item.setFlags(group_item.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
                 # 增大分组项尺寸
                 group_item.setSizeHint(0, QSize(0, 35))  # 设置分组项高度为35px
                 self.app_tree.addTopLevelItem(group_item)
@@ -820,6 +823,31 @@ class PythonAppManager(QMainWindow):
         # if app_id in self.app_processes:
         del self.app_processes[app_id]
 
+    def on_item_changed(self, item, column):
+        if column != 0:
+            return
+        
+        # 处理分组项选中状态变化
+        if not item.parent():  # 顶层项目（分组）
+            check_state = item.checkState(0)
+            for i in range(item.childCount()):
+                child = item.child(i)
+                child.setCheckState(0, check_state)
+        else:  # 子项
+            parent = item.parent()
+            child_count = parent.childCount()
+            checked_count = 0
+            for i in range(child_count):
+                if parent.child(i).checkState(0) == Qt.Checked:
+                    checked_count += 1
+            
+            if checked_count == 0:
+                parent.setCheckState(0, Qt.Unchecked)
+            elif checked_count == child_count:
+                parent.setCheckState(0, Qt.Checked)
+            else:
+                parent.setCheckState(0, Qt.PartiallyChecked)
+
     def stop_app_by_id(self, app_id):
         self.logger.info(f"Stopping application: {app_id} {self.app_processes}")
         if app_id in self.app_processes:
@@ -971,7 +999,6 @@ class PythonAppManager(QMainWindow):
 
         # 加载应用设置
         app_settings = self.app_data_manager.get_app_settings(app_id)
-        python_path = app_settings.get('python_path', self.global_settings['python_path']) if app_settings else self.global_settings['python_path']
         args = app.arguments
         cwd = app.working_directory
 
@@ -984,10 +1011,8 @@ class PythonAppManager(QMainWindow):
         # 格式化参数
         formatted_args = app.arguments.format(app_path=app_path, app_id=app_id, app_name=app.name)
 
-        # 构建命令
-        # 使用全局Python解释器路径
-        global_python_path = self.global_settings.get('python_path', '').strip()
-        python_path = global_python_path if global_python_path else sys.executable
+        # 获取Python解释器路径
+        python_path = self._get_python_path(app)
         command = [python_path, app_path] + shlex.split(formatted_args)
 
         # 启动应用进程
@@ -1070,13 +1095,22 @@ class PythonAppManager(QMainWindow):
         self.output_readers[app_id].start()
 
     def _get_python_path(self, app) -> str:
-        """获取并验证Python解释器路径"""
+        """获取并验证Python解释器路径，优先使用应用配置"""
+        # 优先使用应用设置中的解释器路径
+        app_settings = self.app_data_manager.get_app_settings(app.id)
+        if app_settings and 'python_path' in app_settings:
+            python_path = app_settings['python_path']
+            if self._validate_python_path(python_path):
+                return python_path
+            self.logger.warning(f"应用配置的Python路径 '{python_path}' 无效，将使用全局配置")
+        
+        # 回退到全局配置
         python_path = self.config_manager.get_setting('Global', 'python_path', sys.executable)
         if self._validate_python_path(python_path):
             return python_path
-        # 尝试自动修复
-        self.logger.warning(f"Python路径 '{python_path}' 无效，已自动使用默认路径")
-        python_path = sys.executable
+        
+        # 自动修复为系统默认Python
+        self.logger.warning(f"全局Python路径 '{python_path}' 无效，已自动使用默认路径")
         python_path = sys.executable
         self.config_manager.save_global_setting('python_path', python_path)
         self.global_python_path_input.setText(python_path)
