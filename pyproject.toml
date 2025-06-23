@@ -1,7 +1,7 @@
 [project]
 
 name = "py-app-pilot"
-version = "1.0.0"
+version = "1.0.1"
 description = "PyPilot - A powerful Python application management tool with GUI interface, supporting app lifecycle management, process monitoring, log viewing, and environment configuration"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,6 +12,7 @@ dependencies = [
     "loguru"
 ]
 [[tool.uv.index]]
-url = "https://mirrors.aliyun.com/pypi/simple/"
-[tool.uv.sources]
-resources = {path = "py_app_pilot/resources/logo.jpg" }
+name = "test-py-app-pilot"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true

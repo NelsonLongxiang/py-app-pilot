@@ -1,4 +1,26 @@
 # PyAppPilot
+
+PyAppPilot是一个用于管理和运行Python应用程序的桌面工具，提供配置管理、进程监控和系统信息展示等功能。
+
+## 配置说明
+
+应用配置采用基于节(section)的结构，使用数据库存储。默认配置节为`Global`，包含以下参数：
+
+### Global节
+| 参数名 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| python_path | 字符串 | 系统Python路径 | Python解释器路径，用于启动应用 |
+| log_level | 字符串 | INFO | 日志级别，可选值：DEBUG, INFO, WARNING, ERROR |
+| auto_start | 布尔值 | false | 是否在工具启动时自动运行上次打开的应用 |
+
+## 配置管理
+
+配置通过`ConfigManager`类统一管理，支持以下操作：
+- 获取配置：`get_setting(section, key, default)`
+- 保存配置：`save_setting(section, key, value)`
+- 验证配置：自动验证配置有效性，无效配置将使用默认值
+
+
 ### AI模型：豆包1.6 推理模型
 ### IDE：TRAE CN
 
